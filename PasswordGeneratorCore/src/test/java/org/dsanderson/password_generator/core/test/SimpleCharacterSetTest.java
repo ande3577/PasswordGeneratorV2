@@ -14,7 +14,7 @@ public class SimpleCharacterSetTest {
 
     @Test
     public void testCount() throws Exception {
-        assertEquals(26, characterSet().count());
+        assertEquals(26, characterSet().getCount());
     }
 
     @Test
@@ -26,7 +26,7 @@ public class SimpleCharacterSetTest {
     @Test(expected = Exception.class)
     public void testMapThrowsExceptionForGreaterThanCount() throws Exception {
         SimpleCharacterSet characterSet = this.characterSet();
-        characterSet.map(characterSet.count());
+        characterSet.map(characterSet.getCount());
     }
 
     @Test(expected = Exception.class)

@@ -3,7 +3,7 @@ package org.dsanderson.password_generator.core;
 /**
  * Created by dsanderson on 6/15/2014.
  */
-public class SimpleCharacterSet {
+public class SimpleCharacterSet extends CharacterSet{
     private final char startingCharacter;
     private final char endingCharacter;
 
@@ -16,21 +16,19 @@ public class SimpleCharacterSet {
         this.endingCharacter = endingCharacter;
     }
 
-    public int count() {
+    @Override
+    public int getCount() {
         return (int) endingCharacter - (int) startingCharacter + 1;
     }
 
+    @Override
     public char map(int value) throws Exception {
         validateIndex(value);
         value += (int) startingCharacter;
         return (char) value;
     }
 
-    void validateIndex(int value) throws Exception {
-        if((value >= count()) || (value < 0))
-            throw new Exception(String.format("Random value (%d) out of range, must be between 0 and %d", value, count()));
-    }
-
+    @Override
     public Boolean inRange(char character) {
         return (character >= startingCharacter) && (character <= endingCharacter);
     }
