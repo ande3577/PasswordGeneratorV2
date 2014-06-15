@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">PasswordGeneratorV2</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Password Generator</string>
+    <string name="length_label">Length</string>
+    <string name="generate_button_label">Generate</string>
     <string name="action_settings">Settings</string>
+    <string name="password_label">Password</string>
 
 </resources>
