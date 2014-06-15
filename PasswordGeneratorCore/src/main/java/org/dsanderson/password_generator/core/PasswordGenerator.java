@@ -1,15 +1,18 @@
 package org.dsanderson.password_generator.core;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PasswordGenerator {
     public static final int DEFAULT_LENGTH = 12;
-    static final int NUMBER_OF_LOWER_CASE_LETTERS = (int) 'z' - (int) 'a' + 1;
-    static final int NUMBER_OF_UPPER_CASE_LETTERS = (int) 'Z' - (int) 'A' + 1;
-    static final int NUMBER_OF_DIGITS = (int) '9' - (int) '0';
+    final SimpleCharacterSet lowerCaseLetters = new SimpleCharacterSet('a', 'z');
+    final SimpleCharacterSet upperCaseLetters = new SimpleCharacterSet('A', 'Z');
+    final SimpleCharacterSet numbers = new SimpleCharacterSet('0','9');
     static final int NUMBER_OF_ATTEMPTS = 100;
     int length = DEFAULT_LENGTH;
     int iterations = 0;
+    List<SimpleCharacterSet> characterSets;
 
     class CharacterInfo {
         Boolean lowerCaseLetter = true;
@@ -76,6 +79,7 @@ public class PasswordGenerator {
 
     public String generate()  throws Exception {
         validateLength();
+        updateCharacterSets(characterEnabled);
         String password;
         iterations = 0;
         CharacterInfo characterNeeded;
@@ -92,6 +96,16 @@ public class PasswordGenerator {
         int minimumLength = characterEnabled.count();
         if(length < minimumLength)
             throw new Exception(String.format("Length too short. Must be at least %d.", minimumLength));
+    }
+
+    void updateCharacterSets(CharacterInfo characterEnabled) {
+        characterSets = new ArrayList<SimpleCharacterSet>();
+        if(characterEnabled.lowerCaseLetter)
+            characterSets.add(lowerCaseLetters);
+        if(characterEnabled.upperCaseLetter)
+            characterSets.add(upperCaseLetters);
+        if(characterEnabled.number)
+            characterSets.add(numbers);
     }
 
     CharacterInfo initializeNeeded() {
@@ -128,44 +142,23 @@ public class PasswordGenerator {
 
         int randomCount = 0;
         if(characterEnabled.lowerCaseLetter)
-            randomCount += NUMBER_OF_LOWER_CASE_LETTERS;
+            randomCount += lowerCaseLetters.count();
         if(characterEnabled.upperCaseLetter)
-            randomCount += NUMBER_OF_UPPER_CASE_LETTERS;
+            randomCount += upperCaseLetters.count();
         if(characterEnabled.number)
-            randomCount += NUMBER_OF_DIGITS;
+            randomCount += numbers.count();
         return randomCount;
     }
 
-    char randomIntToChar(int randomInt, CharacterInfo characterEnabled) {
+    char randomIntToChar(int randomInt, CharacterInfo characterEnabled) throws Exception {
         int newRandomInt = randomInt;
-        if(characterEnabled.lowerCaseLetter) {
-            if(newRandomInt < NUMBER_OF_LOWER_CASE_LETTERS) {
-                return mapChar(newRandomInt, 'a');
-            } else {
-                newRandomInt -= NUMBER_OF_LOWER_CASE_LETTERS;
-            }
-        }
-        if(characterEnabled.upperCaseLetter) {
-            if(newRandomInt < NUMBER_OF_UPPER_CASE_LETTERS) {
-                return mapChar(newRandomInt, 'A');
-            }
-            else {
-                newRandomInt -= NUMBER_OF_UPPER_CASE_LETTERS;
-            }
-        }
-        if(characterEnabled.number) {
-            if(newRandomInt  < NUMBER_OF_DIGITS) {
-                return mapChar(newRandomInt, '0');
-            } else {
-                newRandomInt -= NUMBER_OF_DIGITS;
-            }
+        for(SimpleCharacterSet characterSet : characterSets) {
+            if(newRandomInt < characterSet.count())
+                return characterSet.map(newRandomInt);
+            else
+                newRandomInt -= characterSet.count();
         }
         return ' ';
-    }
-
-    char mapChar(int randomInt, char startingChar) {
-        int charInt = randomInt + (int) startingChar;
-        return (char) charInt;
     }
 
     void updateNeeded(char newCharacter, CharacterInfo characterNeeded) {
@@ -179,25 +172,23 @@ public class PasswordGenerator {
     }
 
     Boolean isLowerCaseCharacter(char character) {
-        return characterInRange(character, 'a', 'z');
+        return lowerCaseLetters.inRange(character);
     }
 
     Boolean isUpperCaseCharacter(char character) {
-        return characterInRange(character, 'A', 'Z');
+        return upperCaseLetters.inRange(character);
     }
 
     Boolean isNumber(char character) {
-        return characterInRange(character, '0', '9');
-    }
-
-    Boolean characterInRange(char character, char min, char max) {
-        return (int) character >= (int) min && (int) character <= (int) max;
+        return numbers.inRange(character);
     }
 
     void updateEnabled(CharacterInfo characterEnabled, CharacterInfo characterNeeded,
                        int remainingLength) {
-        if(characterNeeded.count() >= remainingLength)
+        if(characterNeeded.count() >= remainingLength) {
             characterEnabled.update(characterNeeded);
+            updateCharacterSets(characterEnabled);
+        }
     }
 
     Boolean validateRequiredCharacters(CharacterInfo characterNeeded) {
