@@ -7,8 +7,10 @@ public class PasswordGenerator {
     final SimpleCharacterSet lowerCaseLetters = new SimpleCharacterSet('a', 'z');
     final SimpleCharacterSet upperCaseLetters = new SimpleCharacterSet('A', 'Z');
     final SimpleCharacterSet numbers = new SimpleCharacterSet('0','9');
-    final SpecialCharacterSet specialCharacters = new SpecialCharacterSet();
+    final SpecialCharacterSet specialCharacters = new SpecialCharacterSet(SPECIAL_CHARACTER_WEIGHT);
     static final int NUMBER_OF_ATTEMPTS = 100;
+    static final int SPECIAL_CHARACTER_WEIGHT = CompoundCharacterSet.DEFAULT_WEIGHT / 2;
+    static final int NUMBER_WEIGHT = CompoundCharacterSet.DEFAULT_WEIGHT * 2;
     int length = DEFAULT_LENGTH;
     int iterations = 0;
     CompoundCharacterSet characterSets;
@@ -116,9 +118,9 @@ public class PasswordGenerator {
         if(characterEnabled.upperCaseLetter)
             characterSets.add(upperCaseLetters);
         if(characterEnabled.number)
-            characterSets.add(numbers);
+            characterSets.add(numbers, NUMBER_WEIGHT);
         if(characterEnabled.specialCharacter)
-            characterSets.add(specialCharacters);
+            characterSets.add(specialCharacters, 1);
     }
 
     CharacterInfo initializeNeeded() {

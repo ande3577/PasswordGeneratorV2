@@ -4,13 +4,25 @@ package org.dsanderson.password_generator.core;
  * Created by dsanderson on 6/15/2014.
  */
 public class SpecialCharacterSet extends CharacterSet {
-    CompoundCharacterSet characterSets = new CompoundCharacterSet();
+    final CompoundCharacterSet characterSets = new CompoundCharacterSet();
 
     public SpecialCharacterSet() {
-        characterSets.add(new SimpleCharacterSet('!', '/'))
-                .add(new SimpleCharacterSet(':', '@'))
-                .add(new SimpleCharacterSet('[', '`'))
-                .add(new SimpleCharacterSet('{', '~'));
+        registerCharacterSets(CompoundCharacterSet.DEFAULT_WEIGHT);
+    }
+
+    public SpecialCharacterSet(int weight) {
+        registerCharacterSets(weight);
+    }
+
+    void registerCharacterSets(int weight) {
+        try {
+            characterSets.add(new SimpleCharacterSet('!', '/'), weight)
+                    .add(new SimpleCharacterSet(':', '@'), weight)
+                    .add(new SimpleCharacterSet('[', '`'), weight)
+                    .add(new SimpleCharacterSet('{', '~'), weight);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override

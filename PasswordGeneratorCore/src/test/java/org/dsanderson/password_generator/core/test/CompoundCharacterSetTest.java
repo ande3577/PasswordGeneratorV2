@@ -11,7 +11,7 @@ public class CompoundCharacterSetTest {
 
     @Test
     public void testCount() throws Exception {
-        Assert.assertEquals(52, characterSet().getCount());
+        Assert.assertEquals(52 * CompoundCharacterSet.DEFAULT_WEIGHT, characterSet().getCount());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class CompoundCharacterSetTest {
         characterSet.map(-1);
     }
 
-    CompoundCharacterSet characterSet() {
+    CompoundCharacterSet characterSet() throws Exception {
         CompoundCharacterSet characterSet = new CompoundCharacterSet();
         characterSet.add(new SimpleCharacterSet('a', 'z'));
         characterSet.add(new SimpleCharacterSet('A', 'Z'));
