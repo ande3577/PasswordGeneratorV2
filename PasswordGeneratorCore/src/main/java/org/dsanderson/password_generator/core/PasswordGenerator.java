@@ -11,7 +11,6 @@ public class PasswordGenerator {
     static final int NUMBER_OF_ATTEMPTS = 100;
     static final int SPECIAL_CHARACTER_WEIGHT = CompoundCharacterSet.DEFAULT_WEIGHT / 2;
     static final int NUMBER_WEIGHT = CompoundCharacterSet.DEFAULT_WEIGHT * 2;
-    int length = DEFAULT_LENGTH;
     int iterations = 0;
     CompoundCharacterSet characterSets;
     final SecureRandom random = new SecureRandom();
@@ -59,11 +58,6 @@ public class PasswordGenerator {
 
     CharacterInfo characterEnabled = new CharacterInfo();
 
-    public PasswordGenerator setLength(int length) {
-        this.length = length;
-        return this;
-    }
-
     public PasswordGenerator setLowerCaseEnabled(Boolean lowerCaseEnabled) {
         characterEnabled.lowerCaseLetter = lowerCaseEnabled;
         return this;
@@ -88,8 +82,12 @@ public class PasswordGenerator {
         return iterations;
     }
 
-    public String generate()  throws Exception {
-        validateLength();
+    public String generate() throws Exception {
+        return generate(DEFAULT_LENGTH);
+    }
+
+    public String generate(int length)  throws Exception {
+        validateLength(length);
         updateCharacterSets(characterEnabled);
         String password;
         iterations = 0;
@@ -98,12 +96,12 @@ public class PasswordGenerator {
             if(++iterations > NUMBER_OF_ATTEMPTS)
                 throw new Exception("Cannot generate password!!!");
             characterNeeded = initializeNeeded();
-            password = generatePasswordString(characterNeeded);
+            password = generatePasswordString(length, characterNeeded);
         } while(characterNeeded.any());
         return password;
     }
 
-    void validateLength() throws Exception {
+    void validateLength(int length) throws Exception {
         int minimumLength = characterEnabled.count();
         if(length < minimumLength)
             throw new Exception(String.format("Length too short. Must be at least %d.", minimumLength));
@@ -127,7 +125,7 @@ public class PasswordGenerator {
         return characterEnabled.copy();
     }
 
-    String generatePasswordString(CharacterInfo characterNeeded) throws Exception {
+    String generatePasswordString(int length, CharacterInfo characterNeeded) throws Exception {
         CharacterInfo characterEnabled = this.characterEnabled.copy();
         int remaining_length = length;
         String password = "";

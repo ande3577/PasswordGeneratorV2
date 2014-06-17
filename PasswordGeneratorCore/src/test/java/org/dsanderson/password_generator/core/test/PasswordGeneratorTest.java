@@ -21,7 +21,7 @@ public class PasswordGeneratorTest {
 
     @Test
     public void stringLengthMatches() throws Exception {
-        assertEquals(8, passwordGenerator().setLength(8).generate().length());
+        assertEquals(8, passwordGenerator().generate(8).length());
     }
 
     @Test
@@ -32,47 +32,47 @@ public class PasswordGeneratorTest {
     @Test
     public void stringContainsLowerCaseLetter()  throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++)
-            assertTrue(checkContains("[a-z]", passwordGenerator(MINIMUM_LENGTH).generate()));
+            assertTrue(checkContains("[a-z]", passwordGenerator().generate(MINIMUM_LENGTH)));
     }
 
     @Test
     public void stringContainsUpperCaseLetter() throws Exception  {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++)
-            assertTrue(checkContains("[A-Z]", passwordGenerator(MINIMUM_LENGTH).generate()));
+            assertTrue(checkContains("[A-Z]", passwordGenerator().generate(MINIMUM_LENGTH)));
     }
 
     @Test
     public void stringContainsNumber() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++)
-            assertTrue(checkContains("[0-9]", passwordGenerator(MINIMUM_LENGTH).generate()));
+            assertTrue(checkContains("[0-9]", passwordGenerator().generate(MINIMUM_LENGTH)));
     }
 
     @Test
     public void stringContainsSpecialCharacter() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++)
-            assertTrue(checkContainsSpecialCharacter(passwordGenerator(MINIMUM_LENGTH).generate()));
+            assertTrue(checkContainsSpecialCharacter(passwordGenerator().generate(MINIMUM_LENGTH)));
     }
 
     @Test
     public void requiresOnlyOneIteration() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
-            PasswordGenerator generator = passwordGenerator(MINIMUM_LENGTH);
-            generator.generate();
+            PasswordGenerator generator = passwordGenerator();
+            generator.generate(MINIMUM_LENGTH);
             assertEquals(1, generator.getIterations());
         }
     }
 
     @Test(expected = Exception.class)
     public void throwsExceptionForInvalidLength() throws Exception{
-        passwordGenerator(MINIMUM_LENGTH-1).generate();
+        passwordGenerator().generate(MINIMUM_LENGTH-1);
     }
 
     @Test
     public void generatesLowerCaseOnly() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
-            PasswordGenerator generator = passwordGeneratorWithNoneEnabled().setLength(1)
+            PasswordGenerator generator = passwordGeneratorWithNoneEnabled()
                     .setLowerCaseEnabled(true);
-            assertTrue(checkContains("[a-z]", generator.generate()));
+            assertTrue(checkContains("[a-z]", generator.generate(1)));
             assertEquals(1, generator.getIterations());
         }
     }
@@ -80,9 +80,9 @@ public class PasswordGeneratorTest {
     @Test
     public void generatesUpperCaseOnly() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
-            PasswordGenerator generator = passwordGeneratorWithNoneEnabled().setLength(1)
+            PasswordGenerator generator = passwordGeneratorWithNoneEnabled()
                     .setUpperCaseEnabled(true);
-            assertTrue(checkContains("[A-Z]", generator.generate()));
+            assertTrue(checkContains("[A-Z]", generator.generate(1)));
             assertEquals(1, generator.getIterations());
         }
     }
@@ -90,9 +90,9 @@ public class PasswordGeneratorTest {
     @Test
     public void generatesNumberOnly() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
-            PasswordGenerator generator = passwordGeneratorWithNoneEnabled().setLength(1)
+            PasswordGenerator generator = passwordGeneratorWithNoneEnabled()
                     .setNumberEnabled(true);
-            assertTrue(checkContains("[0-9]", generator.generate()));
+            assertTrue(checkContains("[0-9]", generator.generate(1)));
             assertEquals(1, generator.getIterations());
         }
     }
@@ -100,9 +100,9 @@ public class PasswordGeneratorTest {
     @Test
     public void generateSpecialCharacterOnly() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
-            PasswordGenerator generator = passwordGeneratorWithNoneEnabled().setLength(1)
+            PasswordGenerator generator = passwordGeneratorWithNoneEnabled()
                     .setSpecialCharactersEnabled(true);
-            assertTrue(checkContainsSpecialCharacter(generator.generate()));
+            assertTrue(checkContainsSpecialCharacter(generator.generate(1)));
             assertEquals(1, generator.getIterations());
         }
     }
@@ -114,10 +114,6 @@ public class PasswordGeneratorTest {
     PasswordGenerator passwordGeneratorWithNoneEnabled() {
         return new PasswordGenerator().setLowerCaseEnabled(false).setUpperCaseEnabled(false)
                 .setNumberEnabled(false).setSpecialCharactersEnabled(false);
-    }
-
-    PasswordGenerator passwordGenerator(int length){
-        return passwordGenerator().setLength(length);
     }
 
     Boolean checkContains(String regex, String password) {

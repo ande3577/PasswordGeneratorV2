@@ -88,10 +88,9 @@ public class PasswordGeneratorActivity extends Activity {
 
         void onGenerateButtonClicked() {
             PasswordGenerator passwordGenerator = new PasswordGenerator();
-            passwordGenerator.setLength(getLengthValue());
             String password;
             try {
-                password = passwordGenerator.generate();
+                password = passwordGenerator.generate(getLengthValue());
             } catch (Exception ex) {
                 password = ex.getMessage();
             }
