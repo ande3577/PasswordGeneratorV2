@@ -73,10 +73,6 @@ public class PasswordGeneratorActivity extends Activity {
             return Integer.parseInt(getLengthView().getText().toString());
         }
 
-        void setLengthValue(int length) {
-            getLengthView().setText(Integer.toString(length));
-        }
-
         @Override
         public void onClick(View view) {
             switch(view.getId()) {
