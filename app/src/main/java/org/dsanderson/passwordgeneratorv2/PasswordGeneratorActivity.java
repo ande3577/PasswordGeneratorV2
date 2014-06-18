@@ -1,16 +1,11 @@
 package org.dsanderson.passwordgeneratorv2;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.Button;
 import android.widget.TextView;
 
 import org.dsanderson.password_generator.core.PasswordGenerator;
@@ -41,6 +36,7 @@ public class PasswordGeneratorActivity extends Activity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_password_generator, container, false);
             rootView.findViewById(R.id.generateButton).setOnClickListener(this);
+            rootView.findViewById(R.id.clearButton).setOnClickListener(this);
             ((TextView) rootView.findViewById(R.id.length)).setText(Integer.toString(PasswordGenerator.DEFAULT_LENGTH));
             return rootView;
         }
@@ -63,6 +59,9 @@ public class PasswordGeneratorActivity extends Activity {
                 case R.id.generateButton:
                     onGenerateButtonClicked();
                     break;
+                case R.id.clearButton:
+                    onClearButtonClicked();
+                    break;
             }
         }
 
@@ -75,6 +74,10 @@ public class PasswordGeneratorActivity extends Activity {
                 password = ex.getMessage();
             }
             setPasswordValue(password);
+        }
+
+        void onClearButtonClicked() {
+            setPasswordValue("");
         }
 
         void setPasswordValue(String password) {
