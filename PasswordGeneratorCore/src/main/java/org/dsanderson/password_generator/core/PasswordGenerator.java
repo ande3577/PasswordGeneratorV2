@@ -9,11 +9,13 @@ public class PasswordGenerator {
     final SimpleCharacterSet numbers = new SimpleCharacterSet('0','9');
     final SpecialCharacterSet specialCharacters = new SpecialCharacterSet(SPECIAL_CHARACTER_WEIGHT);
     static final int NUMBER_OF_ATTEMPTS = 100;
-    static final int SPECIAL_CHARACTER_WEIGHT = CompoundCharacterSet.DEFAULT_WEIGHT / 2;
+    static final int SPECIAL_CHARACTER_WEIGHT = CompoundCharacterSet.DEFAULT_WEIGHT / 4;
     static final int NUMBER_WEIGHT = CompoundCharacterSet.DEFAULT_WEIGHT * 2;
+    static final int KEYWORD_REPLACEMENT_WEIGHT = CompoundCharacterSet.DEFAULT_WEIGHT;
     int iterations = 0;
     CompoundCharacterSet characterSets;
     final SecureRandom random = new SecureRandom();
+    final CharacterRandomizer characterRandomizer = new CharacterRandomizer(random);
 
     class CharacterInfo {
         Boolean lowerCaseLetter = true;
@@ -83,11 +85,15 @@ public class PasswordGenerator {
     }
 
     public String generate() throws Exception {
-        return generate(DEFAULT_LENGTH);
+        return generate(DEFAULT_LENGTH, "");
     }
 
-    public String generate(int length)  throws Exception {
-        validateLength(length);
+    public String generate(int length) throws Exception {
+        return generate(length, "");
+    }
+
+    public String generate(int length, String keyword)  throws Exception {
+        validateLength(length, keyword);
         updateCharacterSets(characterEnabled);
         String password;
         iterations = 0;
@@ -96,13 +102,15 @@ public class PasswordGenerator {
             if(++iterations > NUMBER_OF_ATTEMPTS)
                 throw new Exception("Cannot generate password!!!");
             characterNeeded = initializeNeeded();
-            password = generatePasswordString(length, characterNeeded);
+            password = generatePasswordString(length, keyword, characterNeeded);
         } while(characterNeeded.any());
         return password;
     }
 
-    void validateLength(int length) throws Exception {
+    void validateLength(int length, String keyword) throws Exception {
         int minimumLength = characterEnabled.count();
+        if(keyword.length() > 0)
+            minimumLength = keyword.length() + minimumLength - 1;
         if(length < minimumLength)
             throw new Exception(String.format("Length too short. Must be at least %d.", minimumLength));
     }
@@ -125,18 +133,35 @@ public class PasswordGenerator {
         return characterEnabled.copy();
     }
 
-    String generatePasswordString(int length, CharacterInfo characterNeeded) throws Exception {
+    String generatePasswordString(int length, String keyword,
+                                  CharacterInfo characterNeeded) throws Exception {
         CharacterInfo characterEnabled = this.characterEnabled.copy();
-        int remaining_length = length;
+        setCharacterRandomizerWeights();
+        String randomizedKeyword = characterRandomizer.getRandomString(keyword,
+                characterEnabled.specialCharacter);
         String password = "";
-        for (int i = 0; i < length; i++) {
+        int remaining_length = length;
+        for(char c : randomizedKeyword.toCharArray()) {
+            updateNeeded(c, characterNeeded);
+            remaining_length--;
+            updateEnabled(characterEnabled, characterNeeded, remaining_length);
+        }
+        int keyword_index = random.nextInt(remaining_length);
+        while (remaining_length > 0) {
             char newCharacter = generateCharacter();
             updateNeeded(newCharacter, characterNeeded);
             remaining_length--;
             updateEnabled(characterEnabled, characterNeeded, remaining_length);
+            if(remaining_length == keyword_index)
+                password += randomizedKeyword;
             password += newCharacter;
         }
         return password;
+    }
+
+    void setCharacterRandomizerWeights() {
+        characterRandomizer.setNumberWeight(KEYWORD_REPLACEMENT_WEIGHT)
+                .setSpecialCharacterWeight(KEYWORD_REPLACEMENT_WEIGHT);
     }
 
     char generateCharacter() throws Exception {

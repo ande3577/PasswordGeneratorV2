@@ -73,6 +73,10 @@ public class PasswordGeneratorActivity extends Activity {
             return Integer.parseInt(getLengthView().getText().toString());
         }
 
+        String getKeywordValue() {
+            return ((TextView) getView().findViewById(R.id.keyword)).getText().toString();
+        }
+
         @Override
         public void onClick(View view) {
             switch(view.getId()) {
@@ -86,7 +90,7 @@ public class PasswordGeneratorActivity extends Activity {
             PasswordGenerator passwordGenerator = new PasswordGenerator();
             String password;
             try {
-                password = passwordGenerator.generate(getLengthValue());
+                password = passwordGenerator.generate(getLengthValue(), getKeywordValue());
             } catch (Exception ex) {
                 password = ex.getMessage();
             }
@@ -99,10 +103,6 @@ public class PasswordGeneratorActivity extends Activity {
 
         TextView getPasswordView() {
             return (TextView) getView().findViewById(R.id.password);
-        }
-
-        Button getGenerateButton() {
-            return (Button) getView().findViewById(R.id.generateButton);
         }
 
     }

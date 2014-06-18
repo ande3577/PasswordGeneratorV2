@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -18,6 +19,8 @@ import java.util.regex.Pattern;
 public class PasswordGeneratorTest {
     static final int MINIMUM_LENGTH = 4;
     static final int NUMBER_OF_TEST_RUNS = 100;
+    static final String KEYWORD = "key word";
+    static final String KEYWORD_PATTERN = "[Kk][Ee3][Yy4][\\_\\-\\,\\.][Ww][Oo0][Rr][Dd]";
 
     @Test
     public void stringLengthMatches() throws Exception {
@@ -105,6 +108,36 @@ public class PasswordGeneratorTest {
             assertTrue(checkContainsSpecialCharacter(generator.generate(1)));
             assertEquals(1, generator.getIterations());
         }
+    }
+
+    @Test
+    public void testKeyword() throws Exception {
+        for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
+            PasswordGenerator generator = passwordGenerator();
+            int length = KEYWORD.length() + MINIMUM_LENGTH - 1;
+            String password = generator.generate(length, KEYWORD);
+            assertTrue(Pattern.compile(KEYWORD_PATTERN).matcher(password).find());
+            assertEquals(length, password.length());
+            assertEquals(1, generator.getIterations());
+        }
+    }
+
+    @Test(expected = Exception.class)
+    public void keywordInsufficientLength() throws Exception {
+        int length = KEYWORD.length() + MINIMUM_LENGTH - 2;
+        passwordGenerator().generate(length, KEYWORD);
+    }
+
+    @Test
+    public void keywordIsRandomized() throws Exception {
+        assertNotEquals(getKeywordFromPassword(), getKeywordFromPassword());
+    }
+
+    String getKeywordFromPassword() throws Exception {
+        String password = passwordGenerator().generate(PasswordGenerator.DEFAULT_LENGTH, KEYWORD);
+        Matcher matcher = Pattern.compile(KEYWORD_PATTERN).matcher(password);
+        matcher.find();
+        return matcher.group();
     }
 
     PasswordGenerator passwordGenerator() {
