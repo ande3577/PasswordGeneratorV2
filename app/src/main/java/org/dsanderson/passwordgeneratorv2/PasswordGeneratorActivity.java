@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.dsanderson.password_generator.core.PasswordGenerator;
@@ -74,10 +76,14 @@ public class PasswordGeneratorActivity extends Activity {
                 password = ex.getMessage();
             }
             setPasswordValue(password);
+            showPassword();
         }
+
+
 
         void onClearButtonClicked() {
             setPasswordValue("");
+            hidePassword();
         }
 
         void setPasswordValue(String password) {
@@ -86,6 +92,18 @@ public class PasswordGeneratorActivity extends Activity {
 
         TextView getPasswordView() {
             return (TextView) getView().findViewById(R.id.password);
+        }
+
+        void showPassword() {
+            getPasswordLayoutView().setVisibility(View.VISIBLE);
+        }
+
+        void hidePassword() {
+            getPasswordLayoutView().setVisibility(View.GONE);
+        }
+
+        RelativeLayout getPasswordLayoutView() {
+            return (RelativeLayout) getView().findViewById(R.id.passwordLayout);
         }
 
     }
