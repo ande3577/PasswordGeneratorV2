@@ -1,6 +1,8 @@
 package org.dsanderson.password_generator.core;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PasswordGenerator {
     public static final int DEFAULT_LENGTH = 12;
@@ -146,16 +148,17 @@ public class PasswordGenerator {
             remaining_length--;
             updateEnabled(characterEnabled, characterNeeded, remaining_length);
         }
-        int keyword_index = random.nextInt(remaining_length);
         while (remaining_length > 0) {
             char newCharacter = generateCharacter();
             updateNeeded(newCharacter, characterNeeded);
             remaining_length--;
             updateEnabled(characterEnabled, characterNeeded, remaining_length);
-            if(remaining_length == keyword_index)
-                password += randomizedKeyword;
             password += newCharacter;
         }
+
+        password = scrambleStringPassword(password);
+        password = insertKeyword(password, randomizedKeyword);
+
         return password;
     }
 
@@ -187,6 +190,39 @@ public class PasswordGenerator {
             characterEnabled.update(characterNeeded);
             updateCharacterSets(characterEnabled);
         }
+    }
+
+    String scrambleStringPassword(String password) {
+        List<Character> characterList = stringToCharacterList(password);
+
+        int length = characterList.size();
+        String newPassword = "";
+        for(int i = 0; i < length; i++) {
+            int index = random.nextInt(characterList.size());
+            newPassword += characterList.get(index);
+            characterList.remove(index);
+        }
+        return newPassword;
+    }
+
+    List<Character> stringToCharacterList(String str) {
+        List<Character> characterList = new ArrayList<Character>();
+        for(char c : str.toCharArray()) {
+            characterList.add(c);
+        }
+        return characterList;
+    }
+
+    String insertKeyword(String password, String randomizedKeyword) {
+        String newPassword = "";
+        int randomizedIndex = random.nextInt(password.length());
+        char[] characterArray = password.toCharArray();
+        for(int i = 0; i < password.length(); i++) {
+            if(i == randomizedIndex)
+                newPassword += randomizedKeyword;
+            newPassword += characterArray[i];
+        }
+        return newPassword;
     }
 
 }
