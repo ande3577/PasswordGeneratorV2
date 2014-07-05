@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.dsanderson.password_generator.core.PasswordGenerator;
 import org.dsanderson.password_generator.core.SpecialCharacterSet;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Test;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -11,6 +13,31 @@ import org.junit.runners.JUnit4;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+class containsSpecialCharacter extends BaseMatcher {
+
+    public containsSpecialCharacter() {
+    }
+
+    @Override
+    public boolean matches(Object item) {
+        SpecialCharacterSet characterSet = new SpecialCharacterSet();
+        for(char c : ((String) item).toCharArray()) {
+            if(characterSet.inRange(c))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void describeTo(Description description) {
+        description.appendText("contains special character=");
+    }
+    public static containsSpecialCharacter matches(){
+        return new containsSpecialCharacter();
+    }
+
+}
 
 /**
  * Created by dsanderson on 6/15/2014.
@@ -35,25 +62,25 @@ public class PasswordGeneratorTest {
     @Test
     public void stringContainsLowerCaseLetter()  throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++)
-            assertTrue(checkContains("[a-z]", passwordGenerator().generate(MINIMUM_LENGTH)));
+            assertThat(passwordGenerator().generate(MINIMUM_LENGTH), containsRegex.matches("[a-z]"));
     }
 
     @Test
     public void stringContainsUpperCaseLetter() throws Exception  {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++)
-            assertTrue(checkContains("[A-Z]", passwordGenerator().generate(MINIMUM_LENGTH)));
+            assertThat(passwordGenerator().generate(MINIMUM_LENGTH), containsRegex.matches("[A-Z]"));
     }
 
     @Test
     public void stringContainsNumber() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++)
-            assertTrue(checkContains("[0-9]", passwordGenerator().generate(MINIMUM_LENGTH)));
+            assertThat(passwordGenerator().generate(MINIMUM_LENGTH), containsRegex.matches("[0-9]"));
     }
 
     @Test
     public void stringContainsSpecialCharacter() throws Exception {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++)
-            assertTrue(checkContainsSpecialCharacter(passwordGenerator().generate(MINIMUM_LENGTH)));
+            assertThat(passwordGenerator().generate(MINIMUM_LENGTH), containsSpecialCharacter.matches());
     }
 
     @Test
@@ -75,7 +102,7 @@ public class PasswordGeneratorTest {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
             PasswordGenerator generator = passwordGeneratorWithNoneEnabled()
                     .setLowerCaseEnabled(true);
-            assertTrue(checkContains("[a-z]", generator.generate(1)));
+            assertThat(generator.generate(1), containsRegex.matches("[a-z]"));
             assertEquals(1, generator.getIterations());
         }
     }
@@ -85,7 +112,7 @@ public class PasswordGeneratorTest {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
             PasswordGenerator generator = passwordGeneratorWithNoneEnabled()
                     .setUpperCaseEnabled(true);
-            assertTrue(checkContains("[A-Z]", generator.generate(1)));
+            assertThat(generator.generate(1), containsRegex.matches("[A-Z]"));
             assertEquals(1, generator.getIterations());
         }
     }
@@ -95,7 +122,7 @@ public class PasswordGeneratorTest {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
             PasswordGenerator generator = passwordGeneratorWithNoneEnabled()
                     .setNumberEnabled(true);
-            assertTrue(checkContains("[0-9]", generator.generate(1)));
+            assertThat(generator.generate(1), containsRegex.matches("[0-9]"));
             assertEquals(1, generator.getIterations());
         }
     }
@@ -105,7 +132,7 @@ public class PasswordGeneratorTest {
         for(int i = 0; i < NUMBER_OF_TEST_RUNS; i++) {
             PasswordGenerator generator = passwordGeneratorWithNoneEnabled()
                     .setSpecialCharactersEnabled(true);
-            assertTrue(checkContainsSpecialCharacter(generator.generate(1)));
+            assertThat(generator.generate(1), containsSpecialCharacter.matches());
             assertEquals(1, generator.getIterations());
         }
     }
@@ -116,7 +143,7 @@ public class PasswordGeneratorTest {
             PasswordGenerator generator = passwordGenerator();
             int length = KEYWORD.length() + MINIMUM_LENGTH - 1;
             String password = generator.generate(length, KEYWORD);
-            assertTrue(Pattern.compile(KEYWORD_PATTERN).matcher(password).find());
+            assertThat(password, containsRegex.matches(KEYWORD_PATTERN));
             assertEquals(length, password.length());
             assertEquals(1, generator.getIterations());
         }
@@ -149,16 +176,4 @@ public class PasswordGeneratorTest {
                 .setNumberEnabled(false).setSpecialCharactersEnabled(false);
     }
 
-    Boolean checkContains(String regex, String password) {
-        return Pattern.compile(regex).matcher(password).find();
-    }
-
-    Boolean checkContainsSpecialCharacter(String password) {
-        SpecialCharacterSet characterSet = new SpecialCharacterSet();
-        for(char c : password.toCharArray()) {
-            if(characterSet.inRange(c))
-                return true;
-        }
-        return false;
-    }
 }
