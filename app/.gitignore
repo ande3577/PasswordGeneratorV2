@@ -43,6 +43,8 @@ proguard/
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
 .idea/dictionaries
+.idea/libraries
+
 
 ## File-based project format
 *.ipr
