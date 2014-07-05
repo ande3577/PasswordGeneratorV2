@@ -43,6 +43,8 @@ public class PasswordGeneratorActivity extends Activity {
         final int INITIAL_PASSWORD_TYPE_INDEX = LETTERS_NUMBERS_AND_SPECIAL_CHAR_INDEX;
         int passwordType = INITIAL_PASSWORD_TYPE_INDEX;
 
+        final String PASSWORD_KEY = "passwordKey";
+
 
 
         public PlaceholderFragment() {
@@ -56,7 +58,20 @@ public class PasswordGeneratorActivity extends Activity {
             rootView.findViewById(R.id.clearButton).setOnClickListener(this);
             ((TextView) rootView.findViewById(R.id.length)).setText(Integer.toString(PasswordGenerator.DEFAULT_LENGTH));
             setupPasswordType((Spinner) rootView.findViewById(R.id.passwordType));
+            if(savedInstanceState != null) {
+                String password = savedInstanceState.getString(PASSWORD_KEY);
+                if (password.length() > 0) {
+                    ((TextView) rootView.findViewById(R.id.password)).setText(password);
+                    rootView.findViewById(R.id.passwordLayout).setVisibility(View.VISIBLE);
+                }
+            }
             return rootView;
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle savedInstanceState) {
+            super.onSaveInstanceState(savedInstanceState);
+            savedInstanceState.putString(PASSWORD_KEY, getPasswordView().getText().toString());
         }
 
         void setupPasswordType(Spinner spinner) {
